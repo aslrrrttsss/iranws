@@ -87,7 +87,7 @@ async function checkAutoRotates(env) {
 				availableIps = cachedIpsData[u.ip_operator] || [];
 			}
 			availableIps = [...new Set(availableIps)];
-			let count = u.ip_count || 20;
+			let count = u.ip_count || 100;
 			let selectedIps = [];
 			if (count >= availableIps.length) {
 				selectedIps = availableIps;
@@ -243,15 +243,8 @@ const __WORKER_EXPORT__ = {
 		if (url.pathname.startsWith("/api/") || url.pathname === "/locations") {
 			return await Router.handleApi(request, url, env, ctx);
 		}
-		if (url.pathname === "/panel" || url.pathname === "/login") {
-			return await Router.handlePanel(request, env);
-		}
-		if (url.pathname.startsWith("/status")) {
-			return Response.redirect(url.origin + "/panel", 302);
-		}
-		return new Response(HTML_TEMPLATES.nginx, {
-			headers: { "Content-Type": "text/html; charset=utf-8" },
-		});
+		// Cyrus: redirect all browser traffic to Telegram; only /sub, /feed and /api stay live
+		return Response.redirect("https://t.me/kouroshasli", 302);
 	},
 };
 const Router = {
@@ -794,7 +787,7 @@ const Router = {
 							}
 						}
 						await env.DB.prepare("UPDATE users SET username = ?, limit_gb = ?, expiry_days = ?, limit_req = ?, ips = ?, tls = ?, port = ?, fingerprint = ?, max_connections = ?, ip_limit = ?, block_porn = ?, block_ads = ?, frag_len = ?, frag_int = ?, user_proxy_iata = ?, user_socks5 = ?, user_proxy_ip = ?, auto_reset_vol_days = ?, auto_reset_req_days = ?, auto_rotate_ip = ?, rotate_time = ?, ip_operator = ?, ip_count = ?, auto_rotate_user_proxy = ? WHERE username = ?")
-							.bind(new_username || username, limit_gb ? parseFloat(limit_gb) : null, expiry_days ? parseInt(expiry_days) : null, limit_req ? parseInt(limit_req) : null, ips || null, tls, port, fingerprint || "chrome", ip_limit ? parseInt(ip_limit) : null, ip_limit ? parseInt(ip_limit) : null, block_porn ? 1 : 0, block_ads ? 1 : 0, frag_len !== undefined ? frag_len : "200-3000", frag_int !== undefined ? frag_int : "1-2", user_proxy_iata || null, user_socks5 || null, user_proxy_ip || null, auto_reset_vol_days ? parseInt(auto_reset_vol_days) : 0, auto_reset_req_days ? parseInt(auto_reset_req_days) : 0, auto_rotate_ip || 0, rotate_time || 0, ip_operator || "all", ip_count || 20, auto_rotate_user_proxy ? 1 : 0, username)
+							.bind(new_username || username, limit_gb ? parseFloat(limit_gb) : null, expiry_days ? parseInt(expiry_days) : null, limit_req ? parseInt(limit_req) : null, ips || null, tls, port, fingerprint || "chrome", ip_limit ? parseInt(ip_limit) : null, ip_limit ? parseInt(ip_limit) : null, block_porn ? 1 : 0, block_ads ? 1 : 0, frag_len !== undefined ? frag_len : "200-3000", frag_int !== undefined ? frag_int : "1-2", user_proxy_iata || null, user_socks5 || null, user_proxy_ip || null, auto_reset_vol_days ? parseInt(auto_reset_vol_days) : 0, auto_reset_req_days ? parseInt(auto_reset_req_days) : 0, auto_rotate_ip || 0, rotate_time || 0, ip_operator || "all", ip_count || 100, auto_rotate_user_proxy ? 1 : 0, username)
 							.run();
 						return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
 					}
@@ -906,7 +899,7 @@ const Router = {
 						const todayUtc = Math.floor(Date.now() / 86400000) * 86400000;
 						const nowTime = Date.now();
 						await env.DB.prepare("INSERT INTO users (username, uuid, limit_gb, expiry_days, limit_req, ips, connection_type, tls, port, fingerprint, max_connections, ip_limit, used_gb, used_req, created_at, is_active, block_porn, block_ads, frag_len, frag_int, user_proxy_iata, user_socks5, user_proxy_ip, auto_reset_vol_days, auto_reset_req_days, last_reset_vol_time, last_reset_req_time, auto_rotate_ip, rotate_time, ip_operator, ip_count, last_rotate_time, auto_rotate_user_proxy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-							.bind(username, finalUuid, limit_gb ? parseFloat(limit_gb) : null, expiry_days ? parseInt(expiry_days) : null, limit_req ? parseInt(limit_req) : null, ips || null, "vl" + "e" + "ss", tls, port, fingerprint || "chrome", ip_limit ? parseInt(ip_limit) : null, ip_limit ? parseInt(ip_limit) : null, finalUsedGb, finalUsedReq, finalCreatedAt, finalIsActive, block_porn ? 1 : 0, block_ads ? 1 : 0, frag_len !== undefined ? frag_len : "200-3000", frag_int !== undefined ? frag_int : "1-2", user_proxy_iata || null, user_socks5 || null, user_proxy_ip || null, auto_reset_vol_days ? parseInt(auto_reset_vol_days) : 0, auto_reset_req_days ? parseInt(auto_reset_req_days) : 0, todayUtc, todayUtc, auto_rotate_ip || 0, rotate_time || 0, ip_operator || "all", ip_count || 20, nowTime, auto_rotate_user_proxy ? 1 : 0)
+							.bind(username, finalUuid, limit_gb ? parseFloat(limit_gb) : null, expiry_days ? parseInt(expiry_days) : null, limit_req ? parseInt(limit_req) : null, ips || null, "vl" + "e" + "ss", tls, port, fingerprint || "chrome", ip_limit ? parseInt(ip_limit) : null, ip_limit ? parseInt(ip_limit) : null, finalUsedGb, finalUsedReq, finalCreatedAt, finalIsActive, block_porn ? 1 : 0, block_ads ? 1 : 0, frag_len !== undefined ? frag_len : "200-3000", frag_int !== undefined ? frag_int : "1-2", user_proxy_iata || null, user_socks5 || null, user_proxy_ip || null, auto_reset_vol_days ? parseInt(auto_reset_vol_days) : 0, auto_reset_req_days ? parseInt(auto_reset_req_days) : 0, todayUtc, todayUtc, auto_rotate_ip || 0, rotate_time || 0, ip_operator || "all", ip_count || 100, nowTime, auto_rotate_user_proxy ? 1 : 0)
 							.run();
 						return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
 					} catch (err) {
@@ -948,7 +941,7 @@ const DbService = {
 					{ name: "ip_limit", def: "INTEGER DEFAULT NULL" },
 					{ name: "active_ips", def: "TEXT DEFAULT NULL" },
 					{ name: "block_porn", def: "INTEGER DEFAULT 0" },
-					{ name: "block_ads", def: "INTEGER DEFAULT 0" },
+					{ name: "block_ads", def: "INTEGER DEFAULT 1" },
 					{ name: "frag_len", def: "TEXT DEFAULT '200-3000'" },
 					{ name: "frag_int", def: "TEXT DEFAULT '1-2'" },
 					{ name: "lifetime_used_gb", def: "REAL DEFAULT 0" },
@@ -962,7 +955,7 @@ const DbService = {
 					{ name: "auto_rotate_ip", def: "INTEGER DEFAULT 0" },
 					{ name: "rotate_time", def: "INTEGER DEFAULT 0" },
 					{ name: "ip_operator", def: "TEXT DEFAULT 'all'" },
-					{ name: "ip_count", def: "INTEGER DEFAULT 20" },
+					{ name: "ip_count", def: "INTEGER DEFAULT 100" },
 					{ name: "last_rotate_time", def: "INTEGER DEFAULT 0" },
 					{ name: "auto_rotate_user_proxy", def: "INTEGER DEFAULT 0" }
 				];
@@ -1045,7 +1038,7 @@ const SubscriptionService = {
 				.filter((ip) => ip.length > 0);
 			if (parsedIps.length > 0) ips = parsedIps;
 		}
-		const ports = String(user.port || "443")
+		const ports = String(user.port || "443,2053,2083,8080,80,8880")
 			.split(",")
 			.map((p) => p.trim())
 			.filter((p) => p.length > 0);
@@ -1128,7 +1121,7 @@ const SubscriptionService = {
 				const isTlsPort = ["443", "2053", "2083", "2087", "2096", "8443"].includes(portStr);
 				const tlsVal = isTlsPort ? "tls" : "none";
 				const userFrag = user.frag_len && user.frag_int ? "&fragment=" + user.frag_len + "," + user.frag_int : "";
-				const remark = flagEmoji + " | " + user.username + " | \u200E" + ip + " | \u200E" + portStr;
+				const remark = (links.length === 3) ? "یه پینگ کلی بگیر وصل شو به پر سرعت ترین ☕️" : "@CFsazbot";
 				links.push("vl" + "e" + "ss://" + user.uuid + "@" + ip + ":" + portStr + "?path=" + dynPath + "&security=" + tlsVal + "&encryption=none&insecure=0&host=" + host + "&fp=" + fp + "&type=ws&allowInsecure=0&sni=" + host + userFrag + "#" + encodeURIComponent(remark));
 			});
 		});
